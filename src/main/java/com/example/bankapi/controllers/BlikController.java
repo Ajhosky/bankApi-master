@@ -31,14 +31,26 @@ public class BlikController {
 
     }
 
-    @GetMapping("blik/createCode")
-    public String generateBlikCode(){
+    @GetMapping("blik/createCode/{token}")
+    public String generateBlikCode(@PathVariable("token") String token){
 
-        return blikRepository.generateBlikCode();
+        return blikRepository.generateBlikCode(token);
     }
 
-    @PatchMapping("blik/{code}")
-    public void changePrice(@PathVariable("code") String code, @RequestBody BlikModel updatedBlik){
-        blikRepository.changePrice(code, updatedBlik);
+    @GetMapping("blik/{code}/{price}")
+    public String changePrice(@PathVariable("code") String code, @PathVariable("price") String priceS){
+        float price = Float.parseFloat(priceS);
+        blikRepository.changePrice(code, price);
+        return "ok";
+    }
+
+    @GetMapping("blik/token/{code}")
+    public String getToken(@PathVariable("code") String code){
+        return blikRepository.checkToken(code);
+    }
+
+    @GetMapping("blik/price/{code}")
+    public String getPrice(@PathVariable("code") String code){
+        return blikRepository.getPrice(code);
     }
 }

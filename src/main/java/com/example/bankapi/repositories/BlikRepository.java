@@ -50,7 +50,7 @@ public class BlikRepository {
 
     }
 
-    public String generateBlikCode() {
+    public String generateBlikCode(String token) {
         String AlphaNumericString = "0123456789";
         LocalDateTime dateNow = LocalDateTime.now();
         LocalDateTime date = dateNow.plusMinutes(2);
@@ -61,13 +61,38 @@ public class BlikRepository {
             sb.append(AlphaNumericString.charAt(index));
         }
         String code = sb.toString();
-        jdbcTemplate.update("INSERT INTO blik (code, price, id_konta, expire_date) VALUES ('"+code+"','0','1','"+date+"')");
+        jdbcTemplate.update("INSERT INTO blik (code, price, id_konta, expire_date) VALUES ('"+code+"','0','"+token+"','"+date+"')");
         return code;
     }
 
-    public void changePrice(String code, BlikModel updatedBlik){
+    public void changePrice(String code, float price){
         BlikModel oldBlik = jdbcTemplate.queryForObject("SELECT code FROM blik WHERE code = " + code, BeanPropertyRowMapper.newInstance(BlikModel.class));
-        float price = oldBlik.getPrice();
-        jdbcTemplate.update("UPDATE blik price="+price+" WHERE code="+code);
+        jdbcTemplate.update("UPDATE blik SET price="+price+" WHERE code="+code);
+    }
+
+    public String checkToken(String code) {
+        String token = "1";
+        try {
+            BlikModel blikModel = jdbcTemplate.queryForObject(
+                    "SELECT * FROM blik WHERE code = "+code,
+                    BeanPropertyRowMapper.newInstance(BlikModel.class));
+            token = blikModel.getId_konta();
+            return token;
+        } catch (EmptyResultDataAccessException e) {
+            return "zly kod" + e.getMessage();
+        }
+    }
+
+    public String getPrice(String code) {
+        float price = 0;
+        try {
+            BlikModel blikModel = jdbcTemplate.queryForObject(
+                    "SELECT * FROM blik WHERE code = "+code,
+                    BeanPropertyRowMapper.newInstance(BlikModel.class));
+            price = blikModel.getPrice();
+            return String.valueOf(price);
+        } catch (EmptyResultDataAccessException e) {
+            return "zly kod" + e.getMessage();
+        }
     }
 }

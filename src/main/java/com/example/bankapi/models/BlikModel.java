@@ -11,7 +11,7 @@ public class BlikModel {
 private int id;
 private int code;
 private float price;
-private String accountNumber;
+private String id_konta;
 
 
 }
